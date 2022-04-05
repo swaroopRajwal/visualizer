@@ -1,14 +1,14 @@
 import { Burger, Group, Header } from "@mantine/core";
-import { SetState } from "immer/dist/internal";
 import React from "react";
 import { IDrawerProps } from "../../lib/interfaces/drawerProps";
-import StartButton from "../StartButton";
+import { ResetButton, StartButton } from "../Buttons";
 import useStyles from "./styles";
 
 
 const NavBar = (props: IDrawerProps) => {
 
   const { classes } = useStyles();
+
   return(
     <Header 
       height={60} 
@@ -16,6 +16,7 @@ const NavBar = (props: IDrawerProps) => {
       p="xs"
     >
       <StartButton/> 
+      <ResetButton/>
       <Burger
         opened={props.openDrawer}
         onClick={() => props.setOpenDrawer(!props.openDrawer)}

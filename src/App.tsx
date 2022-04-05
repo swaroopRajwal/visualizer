@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Bars from "./components/Bars";
 import ConfigDrawer from "./components/Drawer";
 import NavBar from "./components/NavBar";
-import StartButton from "./components/StartButton";
+import SideBar from "./components/SideBar";
 import useGenerateNewArray from "./lib/hooks/generateNewArray";
 import { IArray } from "./lib/interfaces/array";
 import { newArray } from "./lib/redux/reducers/array";
@@ -27,7 +27,8 @@ const App = () => {
         openDrawer={openDrawer}
         setOpenDrawer={setOpenDrawer}
       />}
-      // navbar={}
+      navbar={<SideBar/>}
+      padding="xs"
     >
       <ConfigDrawer
         openDrawer={openDrawer}
