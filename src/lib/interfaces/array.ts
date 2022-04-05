@@ -1,7 +1,6 @@
 export interface IArray {
   value: number,
-  primary: boolean,
-  secondary: boolean,
+  selected: boolean,
 }
 
 export interface IAnimationArray {

@@ -8,13 +8,34 @@ interface initialState {
   length: number,
   animations: IAnimationArray[],
   startAnimation: boolean,
+  speed: number,
+  config: {
+    speed: { value: number, label: string }[],
+    length: { value: number, label: string }[],
+  },
+  isSorting: boolean,
 }
 
 const initialState: initialState = {
   array: [],
-  length: 20,
+  length: 10,
   animations: [],
   startAnimation: false,
+  speed: 550,
+  config: {
+    speed: [
+      { value: 100, label: '100'},
+      { value: 550, label: '550' },
+      { value: 1000, label: '1000' },
+    ],
+    length: [
+      { value: 5, label: '5' },
+      { value: 10, label: '10' },
+      { value: 15, label: '15' },
+      { value: 20, label: '20' },
+    ]
+  },
+  isSorting: false,
 }
 
 const arrayReducer = createSlice({
@@ -25,8 +46,7 @@ const arrayReducer = createSlice({
       state.array = action.payload.map(item => {
         return {
           value: item,
-          secondary: false,
-          primary: false,
+          selected: false,
         }
       })
     },
@@ -39,28 +59,33 @@ const arrayReducer = createSlice({
     updateAnimationsArray: (state, action: PayloadAction<IAnimationArray[]>) => {
       state.animations = action.payload;
       state.startAnimation = true;
+      state.isSorting = true;
     },
-    setPrimary: (state, action: PayloadAction<number>) => {
-      state.array[action.payload].primary = true;
+    setSelected: (state, action: PayloadAction<number>) => {
+      state.array[action.payload].selected = true;
     },
-    setSecondary: (state, action: PayloadAction<number>) => {
-      state.array[action.payload].secondary = true;
-    },
-    removePrimary: (state, action: PayloadAction<number>) => {
-      state.array[action.payload].primary = false;
-    },
-    removeSecondary: (state, action: PayloadAction<number>) => {
-      state.array[action.payload].secondary = false;
+    removeSelected: (state, action: PayloadAction<number>) => {
+      state.array[action.payload].selected = false;
     },
     swap: (state, action: PayloadAction<number[]>) => {
       let temp = state.array[action.payload[0]];
       state.array[action.payload[0]] = state.array[action.payload[1]]
       state.array[action.payload[1]] = temp;
 
-      state.array[action.payload[1]].primary = false;
-      state.array[action.payload[0]].secondary = false;
-      state.array[action.payload[1]].secondary = false;
-      state.array[action.payload[0]].primary = false;
+      state.array[action.payload[0]].selected = false;
+      state.array[action.payload[1]].selected = false;
+    },
+    updateLength: (state, action: PayloadAction<number>) => {
+      state.length = action.payload;
+
+    },
+    updateSpeed: (state, action: PayloadAction<number>) => {
+      state.speed = action.payload;
+    },
+    reset: (state) => {
+      state.animations = [];
+      state.startAnimation = false;
+      state.isSorting = false;
     }
 
   }
@@ -74,27 +99,31 @@ export const {
   updateArray,
   updateAnimationsArray,
   swap,
-  setPrimary,
-  setSecondary,
-  removePrimary,
-  removeSecondary,
+  setSelected,
+  removeSelected,
+  updateLength,
+  updateSpeed,
+  reset,
 } = arrayReducer.actions;
 
-export const startAnimation = () => (dispatch: AppDispatch, state: () => RootState) => {
+export const startAnimation = () => async (dispatch: AppDispatch, state: () => RootState) => {
 
   let arr = [...state().array.animations];
+  let speed = state().array.speed;
 
   for (let i = 0; i < arr.length; i++) {
-    setTimeout(() => {
-      if (arr[i].swap) {
-        dispatch(swap([arr[i].primary, arr[i].secondary]));
-      }
-    }, 50 * i);
-    // setTimeout(() => {
-    //   dispatch(removePrimary(arr[i].primary));
-    //   dispatch(removeSecondary(arr[i].secondary));
-    // }, 100 * i);
+    dispatch(setSelected(arr[i].primary))
+    dispatch(setSelected(arr[i].secondary))
+    await new Promise(res => setTimeout(res, speed));
+    if (arr[i].swap) {
+      dispatch(swap([arr[i].primary, arr[i].secondary]));
+    } else {
+      dispatch(removeSelected(arr[i].primary));
+      dispatch(removeSelected(arr[i].secondary));
+    }
+    await new Promise(res => setTimeout(res, 50))
   }
+  dispatch(reset());
 }
 // }
 
